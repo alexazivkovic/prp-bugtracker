@@ -1,0 +1,33 @@
+# .NET build izlaz. Sve ovo se dobije sa dotnet build, nema razloga da ide u repo.
+# Pazi: ovim se ignorise i clr/BugTrackerCLR/bin/BugTrackerCLR.dll, sto je u redu -
+# sklop se pravi skriptom scripts/build-clr-only.sh pre nego sto se pusti db/06.
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# izlaz testova, pravi ga scripts/test-all.sh pri svakom pokretanju
+tests/izlaz/
+
+# izvestaj koji QA aplikacija snimi kad se izabere stavka "izvezi izvestaj"
+izvestaj_aktivnosti_*.xml
+
+# Word i PowerPoint prave ovakve fajlove dok je dokument otvoren
+~$*.docx
+~$*.pptx
+~$*.doc
+~$*.ppt
+
+# macOS
+.DS_Store
+.AppleDouble
+
+# uredjivaci
+.idea/
+.vscode/
+*.swp
+
+# privremeno
+*.bak
+*.tmp

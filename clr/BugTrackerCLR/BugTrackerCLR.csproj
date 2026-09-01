@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- SQLCLR izvrsava iskljucivo .NET Framework sklopove.
+         net48 = .NET Framework 4.8. NE .NET 8 - to SQLCLR ne podrzava. -->
+    <TargetFramework>net48</TargetFramework>
+    <AssemblyName>BugTrackerCLR</AssemblyName>
+    <RootNamespace>BugTrackerCLR</RootNamespace>
+    <LangVersion>7.3</LangVersion>
+    <!-- deterministicka izgradnja: isti izvor -> isti bajtovi -> isti SHA2_512.
+         bitno jer bazu ucimo da veruje sklopu BAS PO HESU. -->
+    <Deterministic>true</Deterministic>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- ovaj paket donosi referentne sklopove .NET Framework-a pa se net48
+         moze graditi i na macOS/Linux gde Framework uopste nije instaliran.
+         bez njega bi build radio samo na Windows-u. -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Microsoft.SqlServer.Server (atributi SqlUserDefinedAggregate,
+         IBinarySerialize) i System.Data.SqlTypes su u System.Data.dll -->
+    <Reference Include="System.Data" />
+  </ItemGroup>
+
+</Project>
