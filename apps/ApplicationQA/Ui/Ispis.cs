@@ -1,7 +1,5 @@
 namespace ApplicationQA.Ui;
 
-// Sitni pomocnici za konzolu - crtanje tabele, pitanja korisniku, poruke.
-// Ovde nema nikakve poslovne logike ni pristupa bazi, samo ulaz i izlaz.
 public static class Ispis
 {
     public static void Naslov(string tekst)
@@ -27,8 +25,6 @@ public static class Ispis
         Console.ResetColor();
     }
 
-    // Racuna sirinu svake kolone prema najduzoj vrednosti, pa poravna.
-    // Duge tekstove sece da red ne bi prelazio u drugi.
     public static void Tabela(string[] zaglavlja, List<string[]> redovi, int maxSirina = 46)
     {
         if (redovi.Count == 0) { Console.WriteLine("(nema podataka)"); return; }
@@ -66,7 +62,6 @@ public static class Ispis
         return Console.ReadLine()?.Trim() ?? "";
     }
 
-    // vraca null ako korisnik samo pritisne Enter, za neobavezna polja
     public static int? PitajBroj(string pitanje)
     {
         var s = Pitaj(pitanje);

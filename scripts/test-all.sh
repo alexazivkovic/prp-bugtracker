@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Pokrece sve testove. Izlaz ide u tests/izlaz/*.txt da moze da se pregleda.
 set -uo pipefail
 source "$(dirname "$0")/env.sh"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

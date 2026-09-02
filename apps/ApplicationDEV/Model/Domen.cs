@@ -1,9 +1,5 @@
 namespace ApplicationDEV.Model;
 
-// Domenske klase. Obicne torbe za podatke, bez ikakve logike - svojstva se
-// poklapaju sa kolonama koje vracaju pogledi i procedure iz seme api_dev.
-// Ovo je najnizi sloj aplikacije, ne zna ni za bazu ni za korisnicki interfejs.
-
 public class Projekat
 {
     public int Id { get; set; }
@@ -26,7 +22,7 @@ public class Greska
     public DateTime DatumPrijave { get; set; }
     public string Status { get; set; }
     public int BrojKomentara { get; set; }
-    public int DanaOtvorena { get; set; }   // popunjeno samo za otvorene greske
+    public int DanaOtvorena { get; set; }
 }
 
 public class Komentar
@@ -35,9 +31,9 @@ public class Komentar
     public string Autor { get; set; }
     public DateTime DatumKom { get; set; }
     public string Tekst { get; set; }
-    public string Prioritet { get; set; }          // moze biti null
-    public string OperativniSistem { get; set; }   // moze biti null
-    public string Pregledac { get; set; }          // moze biti null
+    public string Prioritet { get; set; }
+    public string OperativniSistem { get; set; }
+    public string Pregledac { get; set; }
     public int BrojOznaka { get; set; }
 }
 
@@ -61,14 +57,12 @@ public class PromenaStatusa
 {
     public int Id { get; set; }
     public int IdGreske { get; set; }
-    public string StariStatus { get; set; }   // null kod prve promene
+    public string StariStatus { get; set; }
     public string NoviStatus { get; set; }
     public DateTime DatumPromene { get; set; }
     public string Korisnik { get; set; }
 }
 
-// Ekran "detalji greske" trazi pet stvari odjednom, pa ih drzimo zajedno.
-// Procedura api_dev.DetaljiGreske ih vraca kao pet rezultujucih skupova.
 public class DetaljiGreske
 {
     public Greska Zaglavlje { get; set; }

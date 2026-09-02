@@ -1,4 +1,3 @@
--- test zahteva 2: ogranicenja, SPI akcije, triger
 USE [BugTracker];
 GO
 SET NOCOUNT ON;

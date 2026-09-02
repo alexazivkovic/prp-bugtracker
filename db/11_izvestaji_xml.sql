@@ -1,10 +1,3 @@
--- Izvestaji nad XML sadrzajem komentara - zahtev 9 je FLWOR sa grupisanjem po
--- autoru i count(), zahtev 10 su ose child::, descendant-or-self:: i parent::.
--- Ose nisam pisao kao zasebne primere nego su ugradjene u funkcije koje
--- aplikacija svakodnevno zove: oznake i okruzenja na ekranu "detalji greske",
--- greske po sistemu u QA izvestaju, a impl.vwKomentarDetalji iz skripte 03
--- hrani ceo pogled na komentare.
-
 USE [BugTracker];
 GO
 
@@ -23,11 +16,6 @@ DROP FUNCTION  IF EXISTS spec.fnt_OkruzenjaGreske;
 DROP FUNCTION  IF EXISTS spec.fnt_OznakeGreske;
 GO
 
--- oznake (tagovi) svih komentara jedne greske.
--- ekran "detalji greske" ih prikazuje kao listu ispod svakog komentara.
--- nodes() sa osom descendant-or-self:: a ne sa '//': isto je, ali ovako se
--- iz koda vidi da NAMERNO trazimo <oznaka> na bilo kojoj dubini - aplikacija
--- sme da posalje i <oznake><grupa><oznaka>...  ako se format prosiri.
 CREATE FUNCTION spec.fnt_OznakeGreske (@idGreske INT)
 RETURNS TABLE
 WITH ENCRYPTION
@@ -41,12 +29,6 @@ RETURN
     WHERE   k.IdGreske = @idGreske;
 GO
 
--- okruzenja u kojima je greska prijavljena.
--- ekran "detalji greske / okruzenja" i QA izvestaj.
--- ovde parent:: nije ukras nego jedini nacin: identifikujemo cvor po <os>
--- (to je ono sto nas zanima), a treba nam i njegov brat <pregledac>.
--- XPath do brata ide preko roditelja, a SQL Server od obrnutih osa podrzava
--- SAMO parent:: (nema ancestor::, nema preceding-sibling::).
 CREATE FUNCTION spec.fnt_OkruzenjaGreske (@idGreske INT)
 RETURNS TABLE
 WITH ENCRYPTION
@@ -62,8 +44,6 @@ RETURN
     WHERE   k.IdGreske = @idGreske;
 GO
 
--- QA ekran: "na kojim sistemima se greske javljaju".
--- isti trik sa parent:: - filtriramo po sadrzaju <os>, vracamo ceo <okruzenje>
 CREATE FUNCTION spec.fnt_GreskePoSistemu (@obrazacOS NVARCHAR(60))
 RETURNS TABLE
 WITH ENCRYPTION
@@ -84,15 +64,6 @@ RETURN
     WHERE   o.cvor.value('(child::os)[1]', 'NVARCHAR(60)') LIKE N'%' + @obrazacOS + N'%';
 GO
 
--- izvestaj aktivnosti po autoru, kao XML.
--- QA aplikacija ima stavku "izvezi izvestaj" koja ovo snimi u .xml fajl,
--- pa se salje timu / uvozi u drugi alat. zato je rezultat XML a ne tabela.
--- XQuery radi unutar JEDNOG dokumenta, a komentari su u 7 zasebnih XML
--- vrednosti, pa ih prvo FOR XML spaja u jedan.
--- pazi: SQL Server je XQuery 1.0 -> NEMA klauzulu 'group by' (ona je tek u
--- 3.0). grupise se preko distinct-values() + ugnezdjeni for.
--- i sve u order by / string() mora biti (izraz)[1], inace Msg 2389
--- "requires a singleton" - server staticki proverava kardinalnost.
 CREATE FUNCTION spec.fns_AktivnostAutoraXml ()
 RETURNS XML
 WITH ENCRYPTION
@@ -101,7 +72,7 @@ BEGIN
     DECLARE @svi XML =
     (
         SELECT  k.Autor                                AS '@autor',
-                CONVERT(NVARCHAR(30), k.DatumKom, 126) AS '@datum',   -- ISO, da se sortira kao string
+                CONVERT(NVARCHAR(30), k.DatumKom, 126) AS '@datum',
                 d.Tekst                                AS 'tekst'
         FROM    impl.tblKomentar        AS k
         JOIN    impl.vwKomentarDetalji  AS d ON d.IdKomentara = k.Id
@@ -128,8 +99,6 @@ BEGIN
 END
 GO
 
--- isti izvestaj, ali rasclanjen u redove - za prikaz u meniju.
--- aplikaciji je tabela upotrebljivija od XML stringa.
 CREATE FUNCTION spec.fnt_AktivnostAutora ()
 RETURNS TABLE
 WITH ENCRYPTION
@@ -143,10 +112,6 @@ RETURN
     CROSS APPLY izvor.x.nodes('/izvestaj/autor') AS a(cvor);
 GO
 
--- detalji jedne greske. vraca PET rezultujucih skupova, aplikacija ih
--- cita redom preko NextResult():
---   1 zaglavlje  2 komentari  3 oznake  4 okruzenja  5 istorija statusa
--- jedan poziv umesto pet -> jedan odlazak do baze po ekranu.
 CREATE OR ALTER PROCEDURE spec.upr_DetaljiGreske
     @idGreske INT
 WITH ENCRYPTION
@@ -183,7 +148,6 @@ BEGIN
 END
 GO
 
--- api omotaci
 CREATE FUNCTION api_dev.OZNAKE_GRESKE (@idGreske INT)
 RETURNS TABLE AS RETURN SELECT * FROM spec.fnt_OznakeGreske(@idGreske);
 GO
@@ -213,7 +177,6 @@ CREATE PROCEDURE api_dev.DetaljiGreske @idGreske INT
 AS BEGIN SET NOCOUNT ON; EXEC spec.upr_DetaljiGreske @idGreske; END
 GO
 
--- QA stavka "izvezi izvestaj" - aplikacija ovo snimi kao .xml fajl
 CREATE PROCEDURE api_qa.IzvestajAktivnostiXml
 AS BEGIN SET NOCOUNT ON; SELECT spec.fns_AktivnostAutoraXml() AS Izvestaj; END
 GO

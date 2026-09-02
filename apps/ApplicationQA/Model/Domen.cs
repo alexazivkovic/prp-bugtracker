@@ -1,9 +1,5 @@
 namespace ApplicationQA.Model;
 
-// Domenske klase QA aplikacije. Primeti da su uze nego u DEV aplikaciji -
-// nema IdProjekta ni sirovog XML-a, jer ih ni sema api_qa ne izlaze.
-// Dve aplikacije, dva ugovora, dva skupa klasa.
-
 public class PregledProjekta
 {
     public int Id { get; set; }
@@ -40,8 +36,6 @@ public class OtvorenaGreska
     public int DanaOtvorena { get; set; }
 }
 
-// jedan red po projektu sa svim porukama spojenim u jedno polje;
-// spaja ih CLR agregat impl.SpojPoruke
 public class SazetakProjekta
 {
     public int IdProjekta { get; set; }

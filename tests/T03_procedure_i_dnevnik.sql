@@ -1,4 +1,3 @@
--- test zahteva 3: procedure, kastomizovani izuzeci, tblErrorLog
 USE [BugTracker];
 GO
 SET NOCOUNT ON;

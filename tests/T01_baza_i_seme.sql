@@ -1,4 +1,3 @@
--- test zahteva 1: baza, kolacija, seme, korisnici, uloge, demo podaci
 USE [BugTracker];
 GO
 PRINT N'== kolacija baze (mora Serbian_Cyrillic_100_CI_AS) ==';

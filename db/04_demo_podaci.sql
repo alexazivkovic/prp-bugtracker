@@ -1,14 +1,6 @@
--- Demo podaci. Tabele 1, 2 i 3 sa strane 4 dokumentacije su prepisane
--- doslovno jer se testovi na odbrani pozivaju bas na te vrednosti. Dodao sam
--- jos nekoliko komentara kakve aplikacija stvarno pravi iz forme, bez njih
--- ekrani sa izvestajima nemaju sta da prikazu.
--- Na dnu su verifikacioni testovi, dokumentacija ih trazi uz ovu skriptu.
-
 USE [BugTracker];
 GO
 
--- TRUNCATE za tehnicke tabele (nema FK, i usput resetuje IDENTITY),
--- DELETE za poslovne jer su u lancu stranih kljuceva pa TRUNCATE ne prolazi
 TRUNCATE TABLE impl.tblHistorijaStatusa;
 TRUNCATE TABLE impl.tblErrorLog;
 
@@ -17,10 +9,6 @@ DELETE FROM impl.tblGreska;
 DELETE FROM impl.tblProjekat;
 GO
 
--- eksplicitni Id-evi jer se dokumentacija i testovi na odbrani pozivaju
--- bas na 1,2,3 / 1..4 / 1,2.
--- pazi: IDENTITY_INSERT sme biti ukljucen za samo JEDNU tabelu u sesiji,
--- i lista kolona u INSERT-u je onda obavezna.
 SET IDENTITY_INSERT impl.tblProjekat ON;
 INSERT INTO impl.tblProjekat (Id, Naziv, Opis, Verzija)
 VALUES
@@ -30,8 +18,6 @@ VALUES
 SET IDENTITY_INSERT impl.tblProjekat OFF;
 GO
 
--- datumi u ISO obliku 'YYYY-MM-DD', jedini koji se tumaci isto bez obzira
--- na SET LANGUAGE sesije
 SET IDENTITY_INSERT impl.tblGreska ON;
 INSERT INTO impl.tblGreska (Id, IdProjekta, Poruka, Ozbiljnost, DatumPrijave, StatusGr)
 VALUES
@@ -42,10 +28,6 @@ VALUES
 SET IDENTITY_INSERT impl.tblGreska OFF;
 GO
 
--- komentari 1 i 2 su iz tabele 3 dokumentacije, ostali su radni podaci -
--- aplikacija ih pravi iz forme (tekst + prioritet + okruzenje + oznake),
--- pa bez njih ekrani "detalji greske" i "aktivnost autora" nemaju sta da prikazu.
--- nijedan nema <resenje> pa se triger ne okida i statusi ostaju kakvi jesu.
 SET IDENTITY_INSERT impl.tblKomentar ON;
 INSERT INTO impl.tblKomentar (Id, IdGreske, SadrzajXML, Autor, DatumKom)
 VALUES
@@ -80,15 +62,10 @@ VALUES
 SET IDENTITY_INSERT impl.tblKomentar OFF;
 GO
 
--- poravnanje brojaca. IDENTITY_INSERT ga podize samo ako je uneta vrednost
--- VECA od tekuce, pa posle vise pokretanja zna da odluta.
--- RESEED na n kad je tabela PUNA daje sledecem redu n+1 (na praznoj bi dao n!)
 DBCC CHECKIDENT ('impl.tblProjekat', RESEED, 3) WITH NO_INFOMSGS;
 DBCC CHECKIDENT ('impl.tblGreska',   RESEED, 4) WITH NO_INFOMSGS;
 DBCC CHECKIDENT ('impl.tblKomentar', RESEED, 7) WITH NO_INFOMSGS;
 GO
-
--- verifikacioni testovi (dokumentacija ih trazi uz ovu skriptu)
 
 PRINT N'--- V1: broj redova mora biti 3 / 4 / 7 ---';
 SELECT N'ПРОЈЕКАТ' AS Tabela, COUNT(*) AS Uneto, 3 AS Ocekivano FROM impl.tblProjekat
@@ -117,8 +94,6 @@ PRINT N'--- V6: cirilica se sortira po srpskoj azbuci (О, Р, У) - dokaz kolac
 SELECT DISTINCT StatusGr FROM impl.tblGreska ORDER BY StatusGr;
 
 PRINT N'--- V7: svaki status iz podataka mora biti u dozvoljenoj listi ---';
--- lista je namerno prekucana, a NE uzeta iz spec.fnt_DozvoljeniStatusi:
--- test koji koristi isti kod koji proverava prosao bi i da je taj kod pogresan.
 SELECT g.StatusGr, COUNT(*) AS Broj,
        CASE WHEN g.StatusGr IN (N'Отворена', N'УПроцесуРешавања', N'Решена', N'Затворена')
             THEN N'OK' ELSE N'NEDOZVOLJEN' END AS Provera

@@ -5,8 +5,6 @@ using Microsoft.Data.SqlClient;
 
 namespace ApplicationQA;
 
-// Ulazna tacka QA aplikacije. Ista uloga kao u DEV aplikaciji - sastavlja
-// slojeve i pusta meni.
 public static class Program
 {
     private static string Vezni()

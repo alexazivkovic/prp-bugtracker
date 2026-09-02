@@ -1,5 +1,3 @@
--- test zahteva 7: FREETEXT naspram CONTAINS, isti termini
--- ovo su dva rezima koja aplikacija nudi: 'C' napredna, 'F' slobodna
 USE [BugTracker];
 GO
 SET NOCOUNT ON;
@@ -9,9 +7,6 @@ EXEC api_dev.PretraziGreske @upit = N'ресетовања', @rezim = 'C';
 EXEC api_dev.PretraziGreske @upit = N'ресетовања', @rezim = 'F';
 
 PRINT N'== visecalni niz: CONTAINS puca, FREETEXT radi ==';
--- kroz sp_executesql jer je Msg 7630 greska KOMPILACIJE, a TRY...CATCH
--- hvata samo greske izvrsavanja. dinamicki SQL se kompajlira kao zaseban
--- paket u trenutku izvrsavanja pa je njegova greska uhvatljiva.
 BEGIN TRY
     EXEC sp_executesql N'EXEC api_dev.PretraziGreske @upit = N''корисник лозинка пријава'', @rezim = ''C'';';
 END TRY

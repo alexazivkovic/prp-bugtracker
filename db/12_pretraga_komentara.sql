@@ -1,7 +1,3 @@
--- Pretraga kroz komentare, zahtev 11. Iza ovoga je ekran "Nadji po terminu":
--- korisnik ukuca rec i dobije greske plus tacno mesto u komentaru gde se ta
--- rec javlja. Spaja dva mehanizma - CONTAINS i xml.nodes().
-
 USE [BugTracker];
 GO
 
@@ -10,10 +6,6 @@ DROP PROCEDURE IF EXISTS api_qa.NadjiPoTerminu;
 DROP PROCEDURE IF EXISTS spec.upr_NadjiPoTerminu;
 GO
 
--- CONTAINS je grubi filter: brz je jer ide preko indeksa, ali zna samo da red
--- sadrzi termin, ne i gde u XML strukturi. nodes() je fini filter i kaze tacno
--- u kom elementu je pogodak, ali sam po sebi mora da prodje kroz svaki red.
--- Zato ih koristim zajedno - prvo suzimo skup, pa onda tacno lociramo.
 CREATE OR ALTER PROCEDURE spec.upr_NadjiPoTerminu
     @termin NVARCHAR(200)
 WITH ENCRYPTION
@@ -26,7 +18,6 @@ BEGIN
             THROW 50050, N'Термин претраге не сме бити празан.', 1;
 
         DECLARE @cist NVARCHAR(200) = LTRIM(RTRIM(@termin));
-        -- navodnici unutar stringa su obavezni za oblik sa dzokerom
         DECLARE @ftUpit NVARCHAR(400) = N'"' + @cist + N'*"';
 
         SELECT  N'Коментар' AS GdePronadjeno,
@@ -37,15 +28,12 @@ BEGIN
         FROM    impl.tblKomentar AS k
         JOIN    impl.tblGreska   AS g ON g.Id = k.IdGreske
         JOIN    impl.tblProjekat AS p ON p.Id = g.IdProjekta
-        -- '/kom//*[not(*)]' = listovi stabla, elementi bez elemenata-dece.
-        -- sa '/kom/*' bi <okruzenje> vratio slepljeno "Android 14Chrome Mobile"
         CROSS APPLY k.SadrzajXML.nodes('/kom//*[not(*)]') AS el(cvor)
         WHERE   CONTAINS(k.SadrzajXML, @ftUpit)
           AND   el.cvor.value('.', 'NVARCHAR(400)') LIKE N'%' + @cist + N'%'
 
         UNION ALL
 
-        -- i pogodak u samoj poruci greske, da korisnik ne mora dvaput da trazi
         SELECT  N'Порука грешке', g.Id, p.Naziv, g.StatusGr,
                 NULL, NULL, NULL, N'Poruka', CAST(g.Poruka AS NVARCHAR(400))
         FROM    impl.tblGreska   AS g

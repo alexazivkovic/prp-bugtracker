@@ -1,9 +1,3 @@
--- test NEFUNKCIONALNIH zahteva (NZ 1-8)
--- dokumentacija, odeljak 4: "Izraditi testove funkcionalnih i
--- nefunkcionalnih zahteva". ovo je taj drugi deo.
--- pazi: kolacija baze je CI (ne razlikuje mala i velika slova), pa provere
--- imenovanja MORAJU imati COLLATE Latin1_General_BIN2, inace bi
--- 'greske' = 'GRESKE' bilo tacno i test bi uvek prolazio.
 USE [BugTracker];
 GO
 SET NOCOUNT ON;
@@ -90,8 +84,6 @@ FROM sys.objects o WHERE SCHEMA_NAME(o.schema_id) = N'spec' AND o.type IN ('P','
 ORDER BY o.type_desc, o.name;
 
 PRINT N'== NZ 8: imenovanje u api_ (pogledi UPPER_CASE, procedure PascalCase) ==';
--- api_qa.upr_MatricaGresaka je SVESNO odstupanje: zahtev 12 to ime trazi
--- doslovno, pa pored njega postoji i PascalCase varijanta MatricaGresaka
 SELECT SCHEMA_NAME(o.schema_id) AS Sema, o.type_desc AS Vrsta, o.name AS Objekat,
        CASE
          WHEN o.type IN ('V','IF','SN')

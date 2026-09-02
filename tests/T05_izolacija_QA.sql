@@ -1,4 +1,3 @@
--- test zahteva 5, QA strana. pokrenuti kao AppLoginQA.
 EXEC sp_setapprole 'DataProviderQA', 'Prp#RoleQa2026!';
 GO
 SET NOCOUNT ON;

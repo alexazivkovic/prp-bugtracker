@@ -3,8 +3,6 @@ using Microsoft.Data.SqlClient;
 
 namespace ApplicationQA.Ui;
 
-// Prezentacioni sloj QA aplikacije. Sve stavke su izvestajne - nigde se nista
-// ne unosi ni menja, jer ni sema api_qa to ne dozvoljava.
 public class Meni
 {
     private readonly DataProviderQA _podaci;
@@ -39,8 +37,6 @@ public class Meni
             }
             catch (SqlException ex)
             {
-                // 50000 navise su nase poruke iz procedura, ispod toga je
-                // tehnicka greska servera
                 if (ex.Number >= 50000) Ispis.Greska($"Одбијено: {ex.Message}");
                 else                    Ispis.Greska($"Greska baze ({ex.Number}): {ex.Message}");
             }

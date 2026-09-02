@@ -4,10 +4,6 @@ using Microsoft.Data.SqlClient;
 
 namespace ApplicationQA.Podaci;
 
-// Sloj pristupa podacima QA aplikacije. Ista ideja kao u DEV aplikaciji, samo
-// sto ovde nema nijedne metode koja menja podatke - uloga DataProviderQA ima
-// pravo citanja i izvrsavanja iskljucivo nad semom api_qa, a nad api_dev,
-// spec i impl joj je sve izricito odbijeno.
 public sealed class DataProviderQA : IDisposable
 {
     private readonly SqlConnection _veza;
@@ -19,8 +15,6 @@ public sealed class DataProviderQA : IDisposable
         _lozinkaUloge = lozinkaUloge;
     }
 
-    // Aplikaciona uloga vazi za sesiju pa veza ostaje otvorena dok aplikacija
-    // radi; iz istog razloga je u veznom stringu Pooling=False.
     public string Prijava()
     {
         _veza.Open();
@@ -54,7 +48,6 @@ public sealed class DataProviderQA : IDisposable
         return lista;
     }
 
-    // zove se ime koje dokumentacija trazi u zahtevu 12
     public List<RedMatrice> UcitajMatricu(int? idProjekta)
     {
         var lista = new List<RedMatrice>();
@@ -119,8 +112,6 @@ public sealed class DataProviderQA : IDisposable
         return lista;
     }
 
-    // Isti izvestaj kao gore, samo kao XML dokument - to je ono sto FLWOR upit
-    // u bazi zapravo proizvodi, a aplikacija ga samo snimi u fajl.
     public string IzvestajXml()
     {
         using var cmd = Procedura("api_qa.IzvestajAktivnostiXml");
@@ -196,9 +187,6 @@ public sealed class DataProviderQA : IDisposable
         return lista;
     }
 
-    // Dijagnostika: proba nesto sto QA aplikacija NE SME i vraca sta je server
-    // rekao. Sluzi da se u svakom trenutku moze pokazati da granica stvarno
-    // postoji, a ne da samo pise u dokumentaciji.
     public List<(string Pokusaj, string Ishod)> ProveriGranice()
     {
         var probe = new (string Opis, string Sql)[]

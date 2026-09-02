@@ -1,30 +1,25 @@
 #!/usr/bin/env bash
-# Gradi celu bazu od nule. --bez-clr preskace izgradnju .NET sklopa.
 set -euo pipefail
 source "$(dirname "$0")/env.sh"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SQL="${ROOT}/scripts/sql.sh"
 BEZ_CLR="${1:-}"
 
-# redosled je bitan:
-#  - Full-Text indeksi moraju postojati PRE spec funkcija (CONTAINSTABLE se
-#    proverava u trenutku kreiranja funkcije)
-#  - CLR agregat mora postojati PRE spec.vw_SAZETAK_PROJEKATA
 REDOSLED=(
-  "01_baza_i_seme.sql"            # zahtev 1  - baza, seme, logini, uloge
-  "02_tabele.sql"                 # zahtev 2  - tabele, ogranicenja, indeksi
-  "03_impl_interno.sql"           # zahtev 2  - interni pogled, log, triger
-  "04_demo_podaci.sql"            # zahtev 1  - demo podaci + verifikacija
-  "05_fulltext.sql"               # zahtevi 6,7 - katalog i FT indeksi
-  "__CLR__"                       # zahtev 8  - CLR sklop i agregat
-  "07_upravljanje_greskama.sql"   # zahtev 3  - upr_ procedure + TRY/CATCH
-  "08_pregledi.sql"               # zahtev 4  - pogledi i api omotaci
-  "09_istorija_statusa.sql"       # zahtev 13 - OUTPUT klauzula
-  "10_pretraga.sql"               # zahtevi 6,7 - CONTAINS / FREETEXT
-  "11_izvestaji_xml.sql"          # zahtevi 9,10 - FLWOR i ose
-  "12_pretraga_komentara.sql"     # zahtev 11 - CONTAINS + nodes()
-  "13_matrica_gresaka.sql"        # zahtev 12 - PIVOT
-  "14_dozvole.sql"                # zahtev 5  - GRANT/DENY, izolacija
+  "01_baza_i_seme.sql"
+  "02_tabele.sql"
+  "03_impl_interno.sql"
+  "04_demo_podaci.sql"
+  "05_fulltext.sql"
+  "__CLR__"
+  "07_upravljanje_greskama.sql"
+  "08_pregledi.sql"
+  "09_istorija_statusa.sql"
+  "10_pretraga.sql"
+  "11_izvestaji_xml.sql"
+  "12_pretraga_komentara.sql"
+  "13_matrica_gresaka.sql"
+  "14_dozvole.sql"
 )
 
 for s in "${REDOSLED[@]}"; do

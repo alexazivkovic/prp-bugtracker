@@ -1,10 +1,7 @@
--- test zahteva 5, DEV strana. pokrenuti POVEZAN KAO AppLoginDEV:
---   sqlcmd -S localhost,1433 -U AppLoginDEV -P 'Prp#Dev2026!' -C -d BugTracker -i tests/T05_izolacija_DEV.sql
 SET NOCOUNT ON;
 DECLARE @r TABLE (RB INT IDENTITY, Faza NVARCHAR(12), Pokusaj NVARCHAR(40), Ishod NVARCHAR(30));
 PRINT N'prijavljen kao ' + SUSER_SNAME() + N', korisnik baze ' + USER_NAME();
 
--- pre aktivacije uloge login nema NISTA, cak ni sopstveni API
 BEGIN TRY SELECT TOP 1 Id FROM impl.tblGreska;
           INSERT INTO @r VALUES (N'pre uloge', N'SELECT impl.tblGreska', N'PROSLO - greska!');
 END TRY BEGIN CATCH INSERT INTO @r VALUES (N'pre uloge', N'SELECT impl.tblGreska', N'odbijeno'); END CATCH

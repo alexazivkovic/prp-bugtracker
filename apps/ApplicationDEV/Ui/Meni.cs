@@ -4,13 +4,10 @@ using Microsoft.Data.SqlClient;
 
 namespace ApplicationDEV.Ui;
 
-// Prezentacioni sloj. Zna za domenske klase i za DataProviderDEV, ali ne zna
-// nista o SQL-u - nijedan upit se ne pise ovde. Kad bi se sutra baza zamenila
-// necim drugim, menjao bi se samo sloj ispod.
 public class Meni
 {
     private readonly DataProviderDEV _podaci;
-    private readonly string _autor;   // ko je prijavljen, ide u komentare
+    private readonly string _autor;
 
     public Meni(DataProviderDEV podaci, string autor)
     {
@@ -47,10 +44,6 @@ public class Meni
             }
             catch (SqlException ex)
             {
-                // Brojevi od 50000 navise su NASI izuzeci iz procedura, sa
-                // porukom prepisanom iz tabela SPI i VPI dokumentacije - njih
-                // korisniku prikazujemo kakve jesu. Sve ispod toga je tehnicka
-                // greska servera i nju samo prijavljujemo.
                 if (ex.Number >= 50000)
                     Ispis.Greska($"Одбијено: {ex.Message}");
                 else
@@ -155,7 +148,6 @@ public class Meni
         var ozbiljnost = Ispis.PitajBroj("Озбиљност 1-5 (1 = критична)");
         if (ozbiljnost is null) { Ispis.Greska("Морате унети број."); return; }
 
-        // datum se ne pita - baza sama stavlja danasnji ako posaljemo NULL
         var noviId = _podaci.PrijaviGresku(idProjekta.Value, poruka, ozbiljnost.Value, null, "Отворена");
         Ispis.Uspeh($"Грешка је пријављена, добила је Ид {noviId}.");
     }
@@ -186,7 +178,6 @@ public class Meni
         var idGreske = Ispis.PitajBroj("Ид грешке");
         if (idGreske is null) { Ispis.Greska("Морате унети број."); return; }
 
-        // listu statusa vuce iz baze, ne drzi je prekucanu u aplikaciji
         var statusi = _podaci.UcitajStatuse();
         for (int i = 0; i < statusi.Count; i++) Console.WriteLine($"  {i + 1}. {statusi[i]}");
 

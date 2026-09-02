@@ -1,4 +1,3 @@
--- test zahteva 10: axis specifiers u objektima koje aplikacija stvarno zove
 USE [BugTracker];
 GO
 SET NOCOUNT ON;

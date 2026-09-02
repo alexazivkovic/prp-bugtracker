@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Pokrece aplikaciju programera.
 set -euo pipefail
 source "$(dirname "$0")/env.sh"
 export DOTNET_ROOT="/opt/homebrew/opt/dotnet/libexec"

@@ -5,27 +5,19 @@ using Microsoft.Data.SqlClient;
 
 namespace ApplicationDEV;
 
-// Ulazna tacka. Samo sastavlja slojeve i pusta meni - nikakva logika ovde.
 public static class Program
 {
-    // Ako neko pokrece na drugoj masini, dovoljno je da postavi promenljive
-    // okruzenja BT_SERVER i BT_LOZINKA umesto da dira kod.
     private static string Vezni()
     {
         var server = Environment.GetEnvironmentVariable("BT_SERVER") ?? "localhost,1433";
         var lozinka = Environment.GetEnvironmentVariable("BT_LOZINKA_DEV") ?? "Prp#Dev2026!";
 
-        // Pooling=False je namerno. Aplikaciona uloga vazi za sesiju, a veza sa
-        // aktivnom ulogom ne moze uredno da se resetuje i vrati u bazen - pa bi
-        // se sledeci korisnik te veze zatekao sa tudjim pravima ili sa greskom.
-        // TrustServerCertificate jer kontejner ima svoj samopotpisan sertifikat.
         return $"Server={server};Database=BugTracker;User Id=AppLoginDEV;Password={lozinka};" +
                "Encrypt=True;TrustServerCertificate=True;Pooling=False;Connect Timeout=15;";
     }
 
     public static int Main()
     {
-        // bez ovoga se cirilica na konzoli ispisuje kao znakovi pitanja
         Console.OutputEncoding = Encoding.UTF8;
         Console.InputEncoding = Encoding.UTF8;
 

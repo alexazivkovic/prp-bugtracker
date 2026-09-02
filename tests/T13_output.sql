@@ -1,4 +1,3 @@
--- test zahteva 13: OUTPUT klauzula i arhiva statusa
 USE [BugTracker];
 GO
 SET NOCOUNT ON;

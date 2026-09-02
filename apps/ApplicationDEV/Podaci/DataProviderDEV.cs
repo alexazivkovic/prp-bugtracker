@@ -4,11 +4,6 @@ using Microsoft.Data.SqlClient;
 
 namespace ApplicationDEV.Podaci;
 
-// Sloj pristupa podacima. Ovo je JEDINA klasa u celoj aplikaciji koja zna da
-// baza uopste postoji - iznad nje meni radi samo sa domenskim klasama.
-// Svaki poziv ide iskljucivo na objekte iz seme api_dev, nikad na spec ni impl.
-// Da neko i pokusa, server bi odbio, jer uloga DataProviderDEV ima DENY nad te
-// dve seme (vidi db/14_dozvole.sql i test T05).
 public sealed class DataProviderDEV : IDisposable
 {
     private readonly SqlConnection _veza;
@@ -20,12 +15,6 @@ public sealed class DataProviderDEV : IDisposable
         _lozinkaUloge = lozinkaUloge;
     }
 
-    // Otvara vezu i aktivira aplikacionu ulogu.
-    // Bitno: sp_setapprole vazi za SESIJU, ne za naredbu. Zato aplikacija drzi
-    // jednu otvorenu vezu celo vreme - kad bi se veza zatvarala posle svakog
-    // upita, uloga bi se izgubila i sledeci poziv bi bio odbijen.
-    // Iz istog razloga je u veznom stringu Pooling=False: veza sa aktivnom
-    // aplikacionom ulogom ne moze uredno da se resetuje i vrati u bazen.
     public string Prijava()
     {
         _veza.Open();
@@ -37,8 +26,6 @@ public sealed class DataProviderDEV : IDisposable
             cmd.ExecuteNonQuery();
         }
 
-        // vracamo pod kojim identitetom sesija sada radi - dokaz da je uloga
-        // zamenila prijavljenog korisnika, a ne da mu je samo dodala prava
         using var ko = new SqlCommand("SELECT SUSER_SNAME() + N' -> ' + USER_NAME();", _veza);
         return (string)ko.ExecuteScalar();
     }
@@ -48,15 +35,11 @@ public sealed class DataProviderDEV : IDisposable
 
     private SqlCommand Upit(string sql) => new SqlCommand(sql, _veza);
 
-    // citanje kolona koje smeju biti NULL; bez ovoga GetString puca na NULL-u
     private static string Tekst(SqlDataReader r, int i) => r.IsDBNull(i) ? null : r.GetString(i);
     private static int? Ceo(SqlDataReader r, int i) => r.IsDBNull(i) ? (int?)null : r.GetInt32(i);
 
     public List<string> UcitajStatuse()
     {
-        // sinonim api_dev.DOZVOLJENI_STATUSI pokazuje na spec.fnt_DozvoljeniStatusi;
-        // padajuca lista u meniju se puni odavde da lista ne bi bila prekucana
-        // i u aplikaciji
         var lista = new List<string>();
         using var cmd = Upit("SELECT StatusGr FROM api_dev.DOZVOLJENI_STATUSI() ORDER BY Redosled;");
         using var r = cmd.ExecuteReader();
@@ -79,8 +62,6 @@ public sealed class DataProviderDEV : IDisposable
         return lista;
     }
 
-    // @idProjekta = null znaci sve greske. Filter ide kao parametar, nikad
-    // lepljenjem u string - inace bi bilo otvoreno za SQL injection.
     public List<Greska> UcitajGreske(int? idProjekta)
     {
         var lista = new List<Greska>();
@@ -120,9 +101,6 @@ public sealed class DataProviderDEV : IDisposable
         return lista;
     }
 
-    // Procedura vraca pet rezultujucih skupova redom: zaglavlje, komentari,
-    // oznake, okruzenja, istorija. Citaju se preko NextResult(), jednim
-    // odlaskom do baze umesto pet.
     public DetaljiGreske UcitajDetalje(int idGreske)
     {
         var d = new DetaljiGreske();
@@ -171,8 +149,6 @@ public sealed class DataProviderDEV : IDisposable
         return d;
     }
 
-    // Id nove greske se ne vraca preko SELECT-a nego kroz OUTPUT parametar -
-    // jedan skalar umesto celog rezultujuceg skupa.
     public int PrijaviGresku(int idProjekta, string poruka, int ozbiljnost, DateTime? datum, string status)
     {
         using var cmd = Procedura("api_dev.PrijaviGresku");
@@ -189,10 +165,6 @@ public sealed class DataProviderDEV : IDisposable
         return (int)izlaz.Value;
     }
 
-    // Aplikacija salje POLJA forme, ne XML. Dokument sklapa baza (FOR XML u
-    // spec.upr_DodajKomentar), pa je element <tekst> uvek prisutan i navodnici
-    // i znakovi < > & su ispravno izbegnuti.
-    // Ako korisnik popuni "resenje", triger u bazi sam zatvara gresku.
     public int DodajKomentar(int idGreske, string autor, string tekst, string prioritet,
                              string os, string pregledac, string oznake, string resenje)
     {
@@ -213,7 +185,6 @@ public sealed class DataProviderDEV : IDisposable
         return (int)izlaz.Value;
     }
 
-    // prazno polje u formi je NULL za bazu, ne prazan string
     private static object Prazno(string s) => string.IsNullOrWhiteSpace(s) ? DBNull.Value : (object)s.Trim();
 
     public void PromeniStatus(int idGreske, string noviStatus)
@@ -224,8 +195,6 @@ public sealed class DataProviderDEV : IDisposable
         cmd.ExecuteNonQuery();
     }
 
-    // rezim 'C' = napredna pretraga (AND, OR, AND NOT, NEAR, rec*)
-    // rezim 'F' = slobodna, obicna recenica
     public List<RezultatPretrage> Pretrazi(string upit, char rezim)
     {
         var lista = new List<RezultatPretrage>();

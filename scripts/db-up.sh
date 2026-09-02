@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
-# Pokreće SQL Server kontejner i čeka da instanca postane spremna.
 set -euo pipefail
 source "$(dirname "$0")/env.sh"
 
-# Ako kontejner već postoji - samo ga pokreni ponovo.
 if docker ps -a --format '{{.Names}}' | grep -qx "${CONTAINER_NAME}"; then
   echo "Kontejner '${CONTAINER_NAME}' postoji - pokrećem ga."
   docker start "${CONTAINER_NAME}" >/dev/null

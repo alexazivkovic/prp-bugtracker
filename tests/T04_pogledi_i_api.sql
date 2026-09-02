@@ -1,4 +1,3 @@
--- test zahteva 4: pogledi u spec i omotaci u api_dev / api_qa
 USE [BugTracker];
 GO
 SET NOCOUNT ON;

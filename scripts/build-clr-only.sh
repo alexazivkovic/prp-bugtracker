@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Samo gradi DLL i kopira ga u kontejner. Registraciju radi db/06_clr.sql
 set -euo pipefail
 source "$(dirname "$0")/env.sh"
 export DOTNET_ROOT="/opt/homebrew/opt/dotnet/libexec"

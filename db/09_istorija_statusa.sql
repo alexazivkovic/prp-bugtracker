@@ -1,19 +1,6 @@
--- Arhiviranje promena statusa preko OUTPUT klauzule, zahtev 13.
--- OUTPUT daje pristup pseudo-tabelama inserted i deleted, istim onima koje
--- postoje u trigerima, samo direktno u samoj DML naredbi - deleted drzi stanje
--- pre izmene, inserted posle. Mogao sam ovo i jos jednim trigerom, ali triger
--- je odvojen objekat pa onaj ko cita UPDATE uopste ne vidi da se nesto
--- arhivira; ovako je sve u istoj naredbi i u istom DML koraku, kako zahtev i
--- trazi.
--- Ovde procedura upr_PromeniStatus i triger trgAutoStatusResen dobijaju novu
--- funkcionalnost ali im se zaglavlje ne menja, pa api_dev.PromeniStatus i C#
--- aplikacija ostaju netaknuti. To je najbolji dokaz da slojevi rade posao
--- zbog kog postoje.
-
 USE [BugTracker];
 GO
 
--- ista procedura iz skripte 07, sad sa OUTPUT klauzulom
 CREATE OR ALTER PROCEDURE spec.upr_PromeniStatus
     @idGreske   INT,
     @noviStatus NVARCHAR(20)
@@ -34,12 +21,10 @@ BEGIN
 
             UPDATE  impl.tblGreska
             SET     StatusGr = @noviStatus
-            -- kolone DatumPromene i Korisnik ne navodimo - popunjavaju ih
-            -- DEFAULT ogranicenja SYSDATETIME() i SUSER_SNAME() iz skripte 02
             OUTPUT  deleted.Id, deleted.StatusGr, inserted.StatusGr
             INTO    impl.tblHistorijaStatusa (IdGreske, StariStatus, NoviStatus)
             WHERE   Id = @idGreske
-              AND   StatusGr <> @noviStatus;   -- ne belezi "promenu" iz X u X
+              AND   StatusGr <> @noviStatus;
 
         COMMIT TRANSACTION;
     END TRY
@@ -54,9 +39,6 @@ BEGIN
 END
 GO
 
--- isti triger iz skripte 03, sad i on arhivira.
--- bez ovoga bi promene koje sistem izvede sam (kad komentar nosi <resenje>)
--- prosle nezabelezeno i istorija bi imala rupe.
 CREATE OR ALTER TRIGGER impl.trgAutoStatusResen
 ON impl.tblKomentar
 AFTER INSERT
@@ -83,10 +65,6 @@ BEGIN
 END
 GO
 
--- ekran "istorija statusa" u obe aplikacije.
--- LEFT JOIN namerno: istorija NEMA strani kljuc (to zabranjuje OUTPUT INTO),
--- pa red o obrisanoj gresci sme da prezivi. INNER bi ga tiho sakrio,
--- a arhiva to ne sme da radi.
 CREATE OR ALTER VIEW spec.vw_ISTORIJA_STATUSA
 WITH ENCRYPTION
 AS

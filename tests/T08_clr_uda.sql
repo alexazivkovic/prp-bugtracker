@@ -1,4 +1,3 @@
--- test zahteva 8: CLR agregatna funkcija
 USE [BugTracker];
 GO
 SET NOCOUNT ON;

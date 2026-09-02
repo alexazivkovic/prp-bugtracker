@@ -1,5 +1,3 @@
--- test zahteva 6: CONTAINS sa AND / OR / AND NOT / NEAR
--- ovo su tacno oni izrazi koje korisnik kuca u polje "napredna pretraga"
 USE [BugTracker];
 GO
 SET NOCOUNT ON;

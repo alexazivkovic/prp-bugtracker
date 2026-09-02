@@ -1,4 +1,3 @@
--- test zahteva 12: PIVOT matrica. QA pocetni izvestaj.
 USE [BugTracker];
 GO
 SET NOCOUNT ON;

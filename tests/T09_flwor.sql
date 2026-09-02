@@ -1,5 +1,3 @@
--- test zahteva 9: FLWOR, grupisanje po autoru, count()
--- iza ovoga stoji QA stavka "aktivnost autora" i "izvezi izvestaj"
 USE [BugTracker];
 GO
 SET NOCOUNT ON;
@@ -16,9 +14,6 @@ SELECT a.Autor, a.BrojKomentara AS IzFLWOR,
 FROM spec.fnt_AktivnostAutora() a ORDER BY a.Autor;
 
 PRINT N'== FLWOR sa WHERE - samo autori sa 2+ komentara ==';
--- isti obrazac koji koristi spec.fns_AktivnostAutoraXml, samo sa filterom.
--- SQL Server je XQuery 1.0 pa nema group by; grupisanje ide preko
--- distinct-values() + ugnezdjeni for
 DECLARE @svi XML = (
     SELECT k.Autor AS '@autor', d.Tekst AS 'tekst'
     FROM impl.tblKomentar k JOIN impl.vwKomentarDetalji d ON d.IdKomentara = k.Id

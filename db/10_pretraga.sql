@@ -1,9 +1,3 @@
--- Pretraga gresaka i projekata, zahtevi 6 i 7. Iza ovoga stoji ekran
--- "Pretraga" u obe aplikacije. Nudi dva rezima: u naprednom (C) korisnik sam
--- kuca AND, OR, AND NOT, NEAR i zvezdicu, a u slobodnom (F) ukuca obicnu
--- recenicu pa server sam nadje smisao. Katalog i indeksi su vec napravljeni
--- u skripti 05.
-
 USE [BugTracker];
 GO
 
@@ -14,16 +8,6 @@ DROP FUNCTION  IF EXISTS spec.fnt_GreskeFreetext;
 DROP FUNCTION  IF EXISTS spec.fnt_ProjektiContains;
 GO
 
--- Dve odvojene funkcije umesto jedne sa parametrom rezima - probao sam
--- jednu sa UNION ALL i uslovima WHERE @rezim='C'/'F' i NE RADI: WHERE se
--- primenjuje POSLE izvora redova, pa se CONTAINSTABLE izvrsi i nad
--- freetext upitom i pukne (Msg 7630). inline funkcija nema IF/ELSE,
--- pa grananje mora u proceduru, dole u ovoj istoj skripti.
--- CONTAINSTABLE/FREETEXTTABLE umesto predikata jer vracaju i [RANK]
--- (0-1000) pa aplikacija moze da sortira po relevantnosti.
--- uglaste zagrade oko KEY i RANK su obavezne, to su rezervisane reci.
--- @upit sme biti promenljiva; ime tabele i kolone NE, zato po funkcija
--- za greske i za projekte.
 CREATE FUNCTION spec.fnt_GreskeContains (@upit NVARCHAR(1000))
 RETURNS TABLE
 WITH ENCRYPTION
@@ -58,11 +42,6 @@ RETURN
     JOIN    impl.tblProjekat AS p ON p.Id = ct.[KEY];
 GO
 
--- pretraga gresaka. ekran "Pretraga" nudi dva rezima:
---   C = napredna  -> korisnik sme da kuca AND / OR / AND NOT / NEAR / rec*
---   F = slobodna  -> obicna recenica, server sam nalazi smisao
--- grananje MORA ovde: inline funkcija nema IF/ELSE, a UNION ne pomaze jer
--- se oba izvora izvrse pa CONTAINSTABLE pukne nad freetext upitom.
 CREATE OR ALTER PROCEDURE spec.upr_PretraziGreske
     @upit  NVARCHAR(1000),
     @rezim CHAR(1) = 'C'
@@ -95,7 +74,6 @@ BEGIN
 END
 GO
 
--- api omotaci
 CREATE OR ALTER PROCEDURE api_dev.PretraziGreske @upit NVARCHAR(1000), @rezim CHAR(1) = 'C'
 AS BEGIN SET NOCOUNT ON; EXEC spec.upr_PretraziGreske @upit, @rezim; END
 GO

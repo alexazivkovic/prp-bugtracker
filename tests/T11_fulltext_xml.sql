@@ -1,5 +1,3 @@
--- test zahteva 11: CONTAINS + xml.nodes() u jednoj proceduri
--- iza ovoga stoji stavka menija "nadji po terminu" u obe aplikacije
 USE [BugTracker];
 GO
 SET NOCOUNT ON;
